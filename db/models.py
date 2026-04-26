@@ -1,7 +1,6 @@
-# models/db_models.py
 from sqlalchemy import (
     Column, Integer, String, Text, Float, DateTime, Boolean,
-    ForeignKey, UniqueConstraint, Index, CheckConstraint
+    ForeignKey, UniqueConstraint
 )
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.orm import declarative_base, relationship

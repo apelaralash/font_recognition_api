@@ -1,0 +1,19 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn[standard] \
+    sqlalchemy \
+    asyncpg \
+    tensorflow \
+    opencv-python \
+    python-multipart \
+    python-dotenv \
+    psycopg2-binary
+
+COPY . .
+
+CMD ["unicorn", "main:app", "--host", "0.0.0.0", "--post", "8000"]

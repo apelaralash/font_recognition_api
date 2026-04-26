@@ -1,10 +1,9 @@
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Request
 from datetime import datetime
 import uuid
 
 from api.models.response import ApiResponse, RecognitionResult, FontInfo
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.models.request import RecognizeRequest
 from config.settings import settings
 from services.ml_service import recognize_font_by_model
 from services.db_service import log_recognition
@@ -15,7 +14,7 @@ router = APIRouter(prefix="/api/v1/fonts", tags=["Recognition"])
 @router.post("/recognize", response_model=ApiResponse)
 async def recognition_request(
     image: UploadFile = File(...),
-    request: RecognizeRequest = None,
+    request: Request = None,
     db: AsyncSession = Depends(get_db)
 ):
     if image.content_type not in settings.allowed_file_types:
@@ -40,8 +39,8 @@ async def recognition_request(
         )
     )
 
-    client_ip = request.client.host
-    user_agent = request.headers.get("user-agent", "")[:1024]
+    client_ip = "ip10"
+    user_agent = "request.headers.get"
 
     await log_recognition(
         db=db,

@@ -6,7 +6,7 @@ async def log_recognition(
     db: AsyncSession,
     filename: str,
     mimetype: str,
-    font: str,
+    font: int,
     confidence: float,
     ip_address: str,
     user_agent: str
@@ -14,9 +14,8 @@ async def log_recognition(
     stmt = insert(RecognitionLog).values(
         filename=filename,
         mimetype=mimetype,
-        font=font,
+        font_id=1,
         confidence=confidence,
-        ip_address=ip_address,
         user_agent=user_agent
     )
     await db.execute(stmt)

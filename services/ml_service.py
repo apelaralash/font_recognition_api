@@ -1,5 +1,4 @@
 import httpx
-import base64
 import numpy as np
 from config.settings import settings
 from core.model_loader import load_tf_model

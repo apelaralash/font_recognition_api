@@ -1,5 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.testing import future
+
 from config.settings import settings
 from typing import AsyncGenerator
 
@@ -17,7 +19,8 @@ AsyncSessionLocal = sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
     autoflush=False,
-    autocommit=False
+    autocommit=False,
+    future=True
 )
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
