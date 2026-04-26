@@ -4,10 +4,11 @@ from typing import Optional, Dict
 class FontInfo(BaseModel):
     font_id: str
     name: str
+    description: str
     style: Optional[str] = None
     license: Optional[str] = None
     download_url: Optional[str] = None
-    sample_image_url: Optional[str] = None
+    creator_name: Optional[str] = None
 
 class RecognitionResult(BaseModel):
     detected_font: str

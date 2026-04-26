@@ -29,11 +29,8 @@ async def recognize_locally(image_bytes: bytes) -> dict:
     confidence = float(np.max(predictions))
     predicted_class = int(np.argmax(predictions))
 
-    classes = [cls.strip() for cls in settings.font_classes.split(",")]
-    font_name = classes[predicted_class] if predicted_class < len(classes) else "Unknown"
-
     return {
-        "font": font_name,
+        "font": predicted_class,
         "confidence": confidence
     }
 

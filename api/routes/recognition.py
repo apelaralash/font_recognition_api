@@ -6,7 +6,7 @@ from api.models.response import ApiResponse, RecognitionResult, FontInfo
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.settings import settings
 from services.ml_service import recognize_font_by_model
-from services.db_service import log_recognition
+from services.db_service import log_recognition, get_font_by_label
 from db.session import get_db
 
 router = APIRouter(prefix="/api/v1/fonts", tags=["Recognition"])
@@ -24,18 +24,22 @@ async def recognition_request(
     if len(contents) > settings.max_file_size_mb * 1024 * 1024:
         raise HTTPException(status_code=413, detail="Файл слишком большой")
     
-    font = await recognize_font_by_model(contents)
+    recognition_result = await recognize_font_by_model(contents)
+    confidence = recognition_result["confidence"]
+
+    font = await get_font_by_label(db, recognition_result["font"])
 
     result = RecognitionResult(
-        detected_font=font["font"],
-        confidence=font["confidence"],
+        detected_font=font["name"],
+        confidence=confidence,
         additional_info=FontInfo(
-            font_id="times_new_roman",
-            name="Times New Roman",
-            style="Regular",
-            license="Commercial",
-            download_url="https://example.com/fonts/times_new",
-            sample_image_url="https://example.com",
+            font_id="id",
+            name=font["name"],
+            description=font["description"],
+            style=font["style_name"],
+            license=font["distribution_method"],
+            download_url=font["source"],
+            creator_name=font["creator_name"],
         )
     )
 
@@ -46,8 +50,8 @@ async def recognition_request(
         db=db,
         filename=image.filename,
         mimetype=image.content_type,
-        font=font["font"],
-        confidence=font["confidence"],
+        font=font["id"],
+        confidence=confidence,
         ip_address=client_ip,
         user_agent=user_agent
     )
