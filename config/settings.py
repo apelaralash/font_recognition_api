@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     ml_service_url: str
     allowed_origins: str
     tf_model_path: str
-    font_classes: str
     debug: bool
     allowed_file_types: list[str] = ["image/jpeg", "image/png", "image/webp"]
     max_file_size_mb: int = 10

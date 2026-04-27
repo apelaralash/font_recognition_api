@@ -7,16 +7,14 @@ async def log_recognition(
     filename: str,
     mimetype: str,
     font: int,
-    confidence: float,
-    ip_address: str,
-    user_agent: str
+    confidence: float
 ):
     stmt = insert(RecognitionLog).values(
         filename=filename,
         mimetype=mimetype,
         font_id=font,
         confidence=confidence,
-        user_agent=user_agent
+        user_agent=""
     )
     await db.execute(stmt)
     await db.commit()

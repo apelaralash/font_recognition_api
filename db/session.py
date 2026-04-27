@@ -1,6 +1,5 @@
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.testing import future
 
 from config.settings import settings
 from typing import AsyncGenerator

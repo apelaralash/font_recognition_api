@@ -2,6 +2,8 @@ from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Request
 from datetime import datetime
 import uuid
 
+from tensorflow import string
+
 from api.models.response import ApiResponse, RecognitionResult, FontInfo
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.settings import settings
@@ -33,7 +35,7 @@ async def recognition_request(
         detected_font=font["name"],
         confidence=confidence,
         additional_info=FontInfo(
-            font_id="id",
+            font_id=f"{font['id']}",
             name=font["name"],
             description=font["description"],
             style=font["style_name"],
@@ -43,17 +45,12 @@ async def recognition_request(
         )
     )
 
-    client_ip = "ip10"
-    user_agent = "request.headers.get"
-
     await log_recognition(
         db=db,
         filename=image.filename,
         mimetype=image.content_type,
         font=font["id"],
-        confidence=confidence,
-        ip_address=client_ip,
-        user_agent=user_agent
+        confidence=confidence
     )
 
     return ApiResponse(
