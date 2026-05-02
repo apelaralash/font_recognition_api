@@ -2,8 +2,6 @@ from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Request
 from datetime import datetime
 import uuid
 
-from tensorflow import string
-
 from api.models.response import ApiResponse, RecognitionResult, FontInfo
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.settings import settings
@@ -27,35 +25,47 @@ async def recognition_request(
         raise HTTPException(status_code=413, detail="Файл слишком большой")
     
     recognition_result = await recognize_font_by_model(contents)
-    confidence = recognition_result["confidence"]
+    top_indices = recognition_result["fonts"]
+    top_confidences = recognition_result["confidences"]
 
-    font = await get_font_by_label(db, recognition_result["font"])
+    results = []
 
-    result = RecognitionResult(
-        detected_font=font["name"],
-        confidence=confidence,
-        additional_info=FontInfo(
-            font_id=f"{font['id']}",
-            name=font["name"],
-            description=font["description"],
-            style=font["style_name"],
-            license=font["distribution_method"],
-            download_url=font["source"],
-            creator_name=font["creator_name"],
-        )
-    )
+    for rank, (font_idx, confidence) in enumerate(zip(top_indices, top_confidences), start=1):
+        # Получаем информацию о шрифте из базы данных
+        try:
+            # Получаем информацию о шрифте из базы данных
+            font = await get_font_by_label(db, font_idx)
 
-    await log_recognition(
-        db=db,
-        filename=image.filename,
-        mimetype=image.content_type,
-        font=font["id"],
-        confidence=confidence
-    )
+            if font:  # проверяем, что шрифт найден
+                recognition_result = RecognitionResult(
+                    detected_font=font["name"],
+                    confidence=float(confidence),
+                    rank=rank,
+                    additional_info=FontInfo(
+                        font_id=f"{font['id']}",
+                        name=font["name"],
+                        description=font["description"],
+                        style=font["style_name"],
+                        license=font["distribution_method"],
+                        download_url=font["source"],
+                        creator_name=font["creator_name"],
+                    )
+                )
+                print(f"asdfg {recognition_result}")
+                results.append(recognition_result)
+        except Exception as e:
+            # Логируем ошибку, но продолжаем обработку остальных шрифтов
+            print(f"Ошибка при получении шрифта {font_idx}: {e}")
+            continue
 
-    return ApiResponse(
+    print(f"qwer {results}")
+
+    response = ApiResponse(
         request_id=f"req-{uuid.uuid4().hex[:10]}",
         status="success",
-        result=result,
-        processed_at=datetime.utcnow().isoformat() + "Z"
+        results=results,
+        error=None,
+        processed_at=datetime.utcnow().isoformat(),
+        total_matches=len(results)
     )
+    return response
