@@ -52,7 +52,8 @@ async def recognition_request(
                     )
                 )
                 print(f"asdfg {recognition_result}")
-                results.append(recognition_result)
+                if confidence > 0.009:
+                    results.append(recognition_result)
         except Exception as e:
             # Логируем ошибку, но продолжаем обработку остальных шрифтов
             print(f"Ошибка при получении шрифта {font_idx}: {e}")
